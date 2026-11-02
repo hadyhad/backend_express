@@ -1,4 +1,6 @@
+import Course from "../models/courseModel.js";
 import Student from "../models/studentModel.js";
+import Teacher from "../models/teacherModel.js";
 async function getStudents(req,res){
     // res.status(200).json(students)
     // res.render("talamid", {title:"liste des etudiants", students})
@@ -25,16 +27,17 @@ async function getStudentByID(req,res){
         
     }    
 }
+
 async function addStudent(req,res){
     try {
         const newStudent = await Student.create({
             name:req.body.name,
-            age:req.body.age
+            age:req.body.age,
+            courses:req.body.courses
         })
         res.status(201).json(newStudent)
     } catch (error) {
         res.status(400).json({message:error.message})
-        
     }
 
     // res.status(201).json(newStudent)
@@ -88,4 +91,26 @@ async function deleteStudent(req, res) {
 
 }
 
+
+async function deleteCoursee(req, res) {
+    try{
+        const course = await Course.findById(req.params.id)
+        if (!course){
+            return res.status(404).json({message: "course not found"})
+        }
+        await Teacher.findOneAndDelete({
+        course:Course._id
+        })
+    
+        await Course.findByIdAndDelete(Course._id)
+        res.status(200).json({message: "course and associated deleted successfullu"})
+        } 
+
+    catch (error){
+        res.status(500).json({message:error.message})
+    }
+} 
+
 export{getStudentByID, getStudents, addStudent, deleteStudent, updateStudent, updateStudentByPatch, formulaireAddStudent}
+
+
